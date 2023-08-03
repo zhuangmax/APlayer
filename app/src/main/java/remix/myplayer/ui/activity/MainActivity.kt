@@ -157,6 +157,11 @@ class MainActivity : MenuActivity(), View.OnClickListener {
 
     // 捐赠
     checkDonation()
+
+    // Max ZHUANG : requestManageExternalStorage
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && ! Environment.isExternalStorageManager()) {
+        PermissionUtil.requestManageExternalStorage(this)
+    }
   }
 
   private fun checkDonation(){

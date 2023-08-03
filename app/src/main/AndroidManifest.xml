@@ -3,6 +3,11 @@
   xmlns:android="http://schemas.android.com/apk/res/android"
   package="remix.myplayer">
 
+  <!-- Max ZHUANG : add MANAGE_EXTERNAL_STORAGE for targetSDKVersion 30+ (Android 11) -->
+  <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"/>
+  <!-- Max ZHUANG : add MANAGE_EXTERNAL_STORAGE for targetSDKVersion 31+ (Android 12) -->
+  <uses-permission android:name="android.permission.MANAGE_ALL_FILES_ACCESS_PERMISSION"/>
+
   <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
     android:maxSdkVersion="32" />
   <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
@@ -33,7 +38,9 @@
     </intent>
   </queries>
 
+  <!-- Max ZHUANG : add requestLegacyExternalStorage for targetSDKVersion 29 (Android 10) -->
   <application
+    android:requestLegacyExternalStorage="true"
     android:allowBackup="true"
     android:icon="@mipmap/ic_launcher"
     android:label="@string/app_name"
