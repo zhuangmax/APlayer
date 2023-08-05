@@ -1560,8 +1560,14 @@ class MusicService : BaseService(), Playback, MusicEventCallback,
     }
 
     //用户设置
+    /*
     lockScreen = SPUtil.getValue(service, SETTING_KEY.NAME, SETTING_KEY.LOCKSCREEN, APLAYER_LOCKSCREEN)
     playModel = SPUtil.getValue(this, SETTING_KEY.NAME, SETTING_KEY.PLAY_MODEL, MODE_LOOP)
+     */
+    // Max ZHUANG : update lockScreen and playModel default value
+    lockScreen = SPUtil.getValue(service, SETTING_KEY.NAME, SETTING_KEY.LOCKSCREEN, CLOSE_LOCKSCREEN)
+    playModel = SPUtil.getValue(this, SETTING_KEY.NAME, SETTING_KEY.PLAY_MODEL, MODE_SHUFFLE)
+
     showDesktopLyric = SPUtil.getValue(this, SETTING_KEY.NAME, SETTING_KEY.DESKTOP_LYRIC_SHOW, false)
     showStatusBarLyric = SPUtil.getValue(this, SETTING_KEY.NAME, SETTING_KEY.STATUSBAR_LYRIC_SHOW, false);
     speed = java.lang.Float.parseFloat(SPUtil.getValue(this, SETTING_KEY.NAME, SETTING_KEY.SPEED, "1.0"))

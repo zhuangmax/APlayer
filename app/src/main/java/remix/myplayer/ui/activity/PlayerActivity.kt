@@ -22,6 +22,7 @@ import android.view.*
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
 import android.view.animation.Animation.AnimationListener
+import android.webkit.MimeTypeMap
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.SeekBar
@@ -320,6 +321,7 @@ class PlayerActivity : BaseMusicActivity() {
    */
   private val onOtherClick = View.OnClickListener { v ->
     when (v.id) {
+      /*
       R.id.playbar_model -> {
         var currentModel = getPlayModel()
         currentModel = if (currentModel == Constants.MODE_REPEAT) Constants.MODE_LOOP else ++currentModel
@@ -338,6 +340,93 @@ class PlayerActivity : BaseMusicActivity() {
       }
       R.id.playbar_playinglist -> newInstance()
           .show(supportFragmentManager, PlayQueueDialog::class.java.simpleName)
+       */
+
+      // Max ZHUANG : hijack playbar_model for lyric, hijack playbar_playinglist for delete
+      R.id.playbar_model -> {
+        val alreadyIgnore = (SPUtil
+                .getValue(this, SPUtil.LYRIC_KEY.NAME, song.id.toString(),
+                        SPUtil.LYRIC_KEY.LYRIC_DEFAULT) == SPUtil.LYRIC_KEY.LYRIC_IGNORE)
+        Theme.getBaseDialog(this)
+                .items(
+                        getString(R.string.embedded_lyric),
+                        getString(R.string.local),
+                        getString(R.string.kugou),
+                        getString(R.string.netease),
+                        getString(R.string.qq),
+                        getString(R.string.select_lrc),
+                        getString(if (!alreadyIgnore) R.string.ignore_lrc else R.string.cancel_ignore_lrc),
+                        getString(R.string.lyric_adjust_font_size),
+                        getString(R.string.change_offset))
+                .itemsCallback { dialog, itemView, position, text ->
+                  when (position) {
+                    0, 1, 2, 3, 4 -> { //0内嵌 1本地 2酷狗 3网易 4qq
+                      SPUtil.putValue(this, SPUtil.LYRIC_KEY.NAME, song.id.toString(), position + 2)
+                      lyricFragment.updateLrc(song, true)
+                      Util.sendLocalBroadcast(MusicUtil.makeCmdIntent(Command.CHANGE_LYRIC))
+                    }
+                    5 -> { //手动选择歌词
+                      val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
+                        type = MimeTypeMap.getSingleton().getMimeTypeFromExtension("lrc")
+                        addCategory(Intent.CATEGORY_OPENABLE)
+                      }
+                      Util.startActivityForResultSafely(
+                              this,
+                              intent,
+                              PlayerActivity.REQUEST_SELECT_LYRIC
+                      )
+                    }
+                    6 -> { //忽略或者取消忽略
+                      Theme.getBaseDialog(this)
+                              .title(if (!alreadyIgnore) R.string.confirm_ignore_lrc else R.string.confirm_cancel_ignore_lrc)
+                              .negativeText(R.string.cancel)
+                              .positiveText(R.string.confirm)
+                              .onPositive { dialog1, which ->
+                                if (!alreadyIgnore) {//忽略
+                                  SPUtil.putValue(this, SPUtil.LYRIC_KEY.NAME, song.id.toString(),
+                                          SPUtil.LYRIC_KEY.LYRIC_IGNORE)
+                                  lyricFragment.updateLrc(song)
+                                } else {//取消忽略
+                                  SPUtil.putValue(this, SPUtil.LYRIC_KEY.NAME, song.id.toString(),
+                                          SPUtil.LYRIC_KEY.LYRIC_DEFAULT)
+                                  lyricFragment.updateLrc(song)
+                                }
+                                Util.sendLocalBroadcast(MusicUtil.makeCmdIntent(Command.CHANGE_LYRIC))
+                              }
+                              .show()
+                    }
+                    7 -> { //字体大小调整
+                      Theme.getBaseDialog(this)
+                              .items(R.array.lyric_font_size)
+                              .itemsCallback { dialog, itemView, position, text ->
+                                lyricFragment.setLyricScalingFactor(position)
+                              }
+                              .show()
+                    }
+                    8 -> { //歌词时间轴调整
+                      this.showLyricOffsetView()
+                    }
+                  }
+
+                }
+                .show()
+      }
+
+      R.id.playbar_playinglist ->
+        remix.myplayer.helper.DeleteHelper.deleteSong(this, song.id, true, false, "")
+                .compose<Boolean>(remix.myplayer.util.RxUtil.applySingleScheduler<Boolean>())
+                .subscribe({ success ->
+                  if (success) {
+                    //移除的是正在播放的歌曲
+                    if (song.id == getCurrentSong().id) {
+                      Util.sendCMDLocalBroadcast(Command.NEXT)
+                    }
+                  }
+                  ToastUtil.show(this, if (success) R.string.delete_success else R.string.delete_error)
+                }, { ToastUtil.show(this, R.string.delete) })
+
+
+
       R.id.top_hide -> onBackPressed()
       R.id.top_more -> {
         @SuppressLint("RestrictedApi") val popupMenu = PopupMenu(this, v, Gravity.TOP)
@@ -672,8 +761,15 @@ class PlayerActivity : BaseMusicActivity() {
         }
 
       })
+      /*
       lrcView?.setHighLightColor(ThemeStore.textColorPrimary)
       lrcView?.setOtherColor(ThemeStore.textColorSecondary)
+      */
+
+      // Max ZHUANG : hardcode LRC font color
+      lrcView?.setHighLightColor(Color.rgb(0,200,0))
+      lrcView?.setOtherColor(Color.LTGRAY)
+
       lrcView?.setTimeLineColor(ThemeStore.textColorSecondary)
     }
   }
@@ -765,7 +861,13 @@ class PlayerActivity : BaseMusicActivity() {
    * 初始化底部区域
    */
   private fun setUpBottom() {
+    /*
     bottomConfig = SPUtil.getValue(this, SETTING_KEY.NAME, SETTING_KEY.BOTTOM_OF_NOW_PLAYING_SCREEN, BOTTOM_SHOW_BOTH)
+    */
+
+    // Max ZHUANG : in default BOTTOM_SHOW_NEXT
+    bottomConfig = SPUtil.getValue(this, SETTING_KEY.NAME, SETTING_KEY.BOTTOM_OF_NOW_PLAYING_SCREEN, BOTTOM_SHOW_NEXT)
+
     if (!this.isPortraitOrientation()) { //横屏不显示底部
       bottomConfig = BOTTOM_SHOW_NONE
     }
@@ -820,8 +922,14 @@ class PlayerActivity : BaseMusicActivity() {
     //播放模式与播放队列
     val playMode = SPUtil.getValue(this, SETTING_KEY.NAME, SETTING_KEY.PLAY_MODEL,
         Constants.MODE_LOOP)
+    /*
     Theme.tintDrawable(playbar_model, if (playMode == Constants.MODE_LOOP) R.drawable.play_btn_loop else if (playMode == Constants.MODE_SHUFFLE) R.drawable.play_btn_shuffle else R.drawable.play_btn_loop_one, tintColor)
     Theme.tintDrawable(playbar_playinglist, R.drawable.play_btn_normal_list, tintColor)
+    */
+
+    // Max ZHUANG : hijack playbar_model for lyric, hijack playbar_playinglist for delete
+    Theme.tintDrawable(playbar_model, R.drawable.icon_notify_lyric, tintColor)
+    Theme.tintDrawable(playbar_playinglist, R.drawable.ic_delete_white_24dp, resources.getColor(R.color.md_red_primary))
 
     //音量控制
     volume_down.drawable.setColorFilter(tintColor, PorterDuff.Mode.SRC_ATOP)
@@ -931,8 +1039,11 @@ class PlayerActivity : BaseMusicActivity() {
     volume_down.setColorFilter(ColorUtil.adjustAlpha(swatch.rgb, 0.5f), PorterDuff.Mode.SRC_IN)
     volume_up.setColorFilter(ColorUtil.adjustAlpha(swatch.rgb, 0.5f), PorterDuff.Mode.SRC_IN)
 
+    // Max ZHUANG : hijack playbar_model for lyric, hijack playbar_playinglist for delete
+    /*
     playbar_model.setColorFilter(ColorUtil.adjustAlpha(swatch.rgb, 0.5f), PorterDuff.Mode.SRC_IN)
     playbar_playinglist.setColorFilter(ColorUtil.adjustAlpha(swatch.rgb, 0.5f), PorterDuff.Mode.SRC_IN)
+     */
 
     normalIndicator.setColor(ColorUtil.adjustAlpha(swatch.rgb, 0.3f))
     highLightIndicator.setColor(swatch.rgb)

@@ -98,10 +98,20 @@ class LrcView : View, ILrcView {
   /**
    * 歌词的当前缩放比例
    */
+
+  /*
   var scalingFactor =
     SPUtil.getValue(App.context, SPUtil.LYRIC_KEY.NAME, SPUtil.LYRIC_KEY.LYRIC_FONT_SIZE, "1f")
       .toFloat()
     private set
+  */
+
+  // Max ZHUANG : set default lyric size
+  var scalingFactor =
+          SPUtil.getValue(App.context, SPUtil.LYRIC_KEY.NAME, SPUtil.LYRIC_KEY.LYRIC_FONT_SIZE, "1.5f")
+                  .toFloat()
+    private set
+
 
   /**
    * 实现歌词竖直方向平滑滚动的辅助对象
@@ -170,6 +180,10 @@ class LrcView : View, ILrcView {
     normalPaint.isAntiAlias = true
     normalPaint.color = normalTextColor
     normalPaint.textSize = DEFAULT_TEXT_SIZE * scalingFactor
+
+    // Max ZHUANG : adjust lrc font size
+    highLightPaint.textSize *= 1.1f
+    normalPaint.textSize *= 0.8f
 
     timeLinePaint.isAntiAlias = true
     timeLineTextSize = TypedValue.applyDimension(
@@ -277,7 +291,13 @@ class LrcView : View, ILrcView {
     )
     val extra = if (staticLayout.lineCount > 1) DensityUtil.dip2px(context, 10f) else 0
     canvas.save()
+    /*
     canvas.translate(paddingLeft.toFloat(), rowY - staticLayout.height / 2 + extra)
+    */
+
+    // Max ZHUANG : fix display
+    canvas.translate(paddingLeft.toFloat(), rowY)
+
     staticLayout.draw(canvas)
     canvas.restore()
     rowY += staticLayout.height.toFloat()

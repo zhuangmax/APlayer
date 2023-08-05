@@ -31,12 +31,22 @@ object ThemeStore {
 
   val theme: String
     get() {
+      /*
       val darkTheme = SPUtil.getValue(
         App.context,
         SPUtil.SETTING_KEY.NAME,
         SPUtil.SETTING_KEY.DARK_THEME,
         FOLLOW_SYSTEM
       )
+      */
+      // Max ZHUANG : default DARK_THEME
+      val darkTheme = SPUtil.getValue(
+              App.context,
+              SPUtil.SETTING_KEY.NAME,
+              SPUtil.SETTING_KEY.DARK_THEME,
+              ALWAYS_ON
+      )
+
       return if (darkTheme == ALWAYS_ON || (darkTheme == FOLLOW_SYSTEM && (App.context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES)) {
         if (SPUtil.getValue(
             App.context,
