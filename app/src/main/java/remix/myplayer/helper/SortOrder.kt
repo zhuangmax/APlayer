@@ -20,4 +20,8 @@ object SortOrder {
   const val PLAYLIST_DATE = "date"
   const val TRACK_NUMBER = Audio.Media.TRACK
   const val PLAYLIST_SONG_CUSTOM = "custom"
+  const val GENRE_A_Z = Audio.Genres.DEFAULT_SORT_ORDER
+  const val GENRE_Z_A = "${Audio.Genres.DEFAULT_SORT_ORDER} DESC"
+  const val PLAY_COUNT = "play_count"
+  const val PLAY_COUNT_DESC= "play_count desc"
 }

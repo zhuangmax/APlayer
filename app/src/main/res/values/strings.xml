@@ -7,6 +7,8 @@
   <string name="tab_artist">Artists</string>
   <string name="tab_playlist">Playlists</string>
   <string name="tab_folder">Folders</string>
+  <string name="tab_genre">Genres</string>
+  <string name="tab_remote">Remote</string>
 
   <string name="drawer_song">Song Library</string>
   <string name="drawer_recently_add">Recently Added</string>
@@ -292,8 +294,12 @@
   <string name="display_title_desc">File name desc</string>
   <string name="artist">Artist</string>
   <string name="artist_desc">Artist desc</string>
+  <string name="genre">Genre</string>
+  <string name="genre_desc">Genre desc</string>
   <string name="date_modify">Date Modified</string>
   <string name="date_modify_desc">Date Modified desc</string>
+  <string name="count">Play count</string>
+  <string name="count_desc">Play count desc</string>
   <string name="duration">Duration</string>
   <string name="year">Year</string>
   <string name="number_of_album">Number of albums</string>
@@ -454,4 +460,16 @@
   <string name="support_developer">Support Developer</string>
   <string name="no_more_prompt">No more prompt</string>
   <string name="go">go</string>
+
+  <string name="webdav">WebDav</string>
+  <string name="dlna">DLNA</string>
+
+  <string name="alias">Alias</string>
+  <string name="account">Account</string>
+  <string name="pwd">Password</string>
+  <string name="webdav_hint_server">Server</string>
+  <string name="webdav_hint_path">Path(optional)</string>
+  <string name="can_t_be_empty">%s can\'t be empty</string>
+  <string name="connect">连接</string>
+  <string name="edit">编辑</string>
 </resources>

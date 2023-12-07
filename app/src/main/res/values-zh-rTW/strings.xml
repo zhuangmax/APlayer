@@ -7,12 +7,14 @@
   <string name="tab_artist">演出者</string>
   <string name="tab_playlist">清單</string>
   <string name="tab_folder">資料夾</string>
+  <string name="tab_genre">流派</string>
+  <string name="tab_remote">遠程</string>
 
   <string name="drawer_song">音樂庫</string>
   <string name="drawer_recently_add">最近新增</string>
   <string name="drawer_folder">資料夾</string>
   <string name="drawer_setting">設定</string>
-  <string name="drawer_history">最近播放</string>
+  <string name="drawer_history">播放歷史</string>
 
   <string name="from_aplayer">來自 APlayer 播放器</string>
   <string name="about">關於 APlayer</string>
@@ -292,8 +294,12 @@
   <string name="display_title_desc">檔案名降序</string>
   <string name="artist">演出者</string>
   <string name="artist_desc">演出者降序</string>
+  <string name="genre">流派</string>
+  <string name="genre_desc">流派降序</string>
   <string name="date_modify">修改時間</string>
   <string name="date_modify_desc">修改時間降序</string>
+  <string name="count">播放次數</string>
+  <string name="count_desc">播放次數降序</string>
   <string name="duration">時長</string>
   <string name="year">年份</string>
   <string name="number_of_album">專輯數量</string>
@@ -454,4 +460,16 @@
   <string name="support_developer">支持開發者</string>
   <string name="no_more_prompt">不再提示</string>
   <string name="go">前往</string>
+
+  <string name="webdav">WebDav</string>
+  <string name="dlna">DLNA</string>
+
+  <string name="alias">别名</string>
+  <string name="account">账户</string>
+  <string name="pwd">密码</string>
+  <string name="webdav_hint_server">服务器</string>
+  <string name="webdav_hint_path">路径(可选)</string>
+  <string name="can_t_be_empty">%s不能为空</string>
+  <string name="connect">連接</string>
+  <string name="edit">編輯</string>
 </resources>

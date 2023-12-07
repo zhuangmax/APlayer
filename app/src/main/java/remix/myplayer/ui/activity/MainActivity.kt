@@ -14,6 +14,7 @@ import android.view.Menu
 import android.view.View
 import android.widget.TextView
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.viewpager.widget.ViewPager
 import com.afollestad.materialdialogs.MaterialDialog
@@ -21,6 +22,7 @@ import com.bumptech.glide.signature.ObjectKey
 import com.facebook.rebound.SimpleSpringListener
 import com.facebook.rebound.Spring
 import com.facebook.rebound.SpringSystem
+import com.google.android.material.tabs.TabLayout
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.soundcloud.android.crop.Crop
@@ -91,7 +93,7 @@ class MainActivity : MenuActivity(), View.OnClickListener {
   }
 
   //当前选中的fragment
-  private var currentFragment: LibraryFragment<*, *>? = null
+  private var currentFragment: Fragment? = null
 
   private var menuLayoutId = R.menu.menu_main
 
@@ -285,7 +287,7 @@ class MainActivity : MenuActivity(), View.OnClickListener {
         showViewWithAnim(btn_add, library.isPlayList())
 
         menuLayoutId = parseMenuId(pagerAdapter.list[position].tag)
-        currentFragment = pagerAdapter.getFragment(position) as LibraryFragment<*, *>
+        currentFragment = pagerAdapter.getFragment(position)
 
         invalidateOptionsMenu()
       }
@@ -293,7 +295,7 @@ class MainActivity : MenuActivity(), View.OnClickListener {
 
       override fun onPageScrollStateChanged(state: Int) {}
     })
-    currentFragment = pagerAdapter.getFragment(0) as LibraryFragment<*, *>
+    currentFragment = pagerAdapter.getFragment(0)
   }
 
   fun parseMenuId(tag: Int): Int {
@@ -302,6 +304,7 @@ class MainActivity : MenuActivity(), View.OnClickListener {
       Library.TAG_ALBUM -> R.menu.menu_album
       Library.TAG_ARTIST -> R.menu.menu_artist
       Library.TAG_PLAYLIST -> R.menu.menu_playlist
+      Library.TAG_GENRE -> R.menu.menu_genre
       Library.TAG_FOLDER -> R.menu.menu_folder
       else -> R.menu.menu_main_simple
     }
@@ -323,6 +326,9 @@ class MainActivity : MenuActivity(), View.OnClickListener {
       is ArtistFragment -> sortOrder = SPUtil
           .getValue(this, SPUtil.SETTING_KEY.NAME, SPUtil.SETTING_KEY.ARTIST_SORT_ORDER,
               SortOrder.ARTIST_A_Z)
+      is GenreFragment -> sortOrder = SPUtil
+        .getValue(this, SPUtil.SETTING_KEY.NAME, SPUtil.SETTING_KEY.GENRE_SORT_ORDER,
+          SortOrder.GENRE_A_Z)
       is PlayListFragment -> sortOrder = SPUtil
           .getValue(this, SPUtil.SETTING_KEY.NAME, SPUtil.SETTING_KEY.PLAYLIST_SORT_ORDER,
               SortOrder.PLAYLIST_DATE)
@@ -350,8 +356,12 @@ class MainActivity : MenuActivity(), View.OnClickListener {
           sortOrder)
       is PlayListFragment -> SPUtil.putValue(this, SPUtil.SETTING_KEY.NAME, SPUtil.SETTING_KEY.PLAYLIST_SORT_ORDER,
           sortOrder)
+      is GenreFragment -> SPUtil.putValue(this, SPUtil.SETTING_KEY.NAME, SPUtil.SETTING_KEY.GENRE_SORT_ORDER,
+        sortOrder)
     }
-    currentFragment?.onMediaStoreChanged()
+    if (currentFragment is LibraryFragment<*, *>) {
+      (currentFragment as LibraryFragment<*, *>?)?.onMediaStoreChanged()
+    }
   }
 
   private fun showViewWithAnim(view: View, show: Boolean) {
@@ -375,7 +385,7 @@ class MainActivity : MenuActivity(), View.OnClickListener {
 
   }
 
-  //初始化custontab
+  //初始化tab
   private fun setUpTab() {
     //添加tab选项卡
     val isPrimaryColorCloseToWhite = ThemeStore.isMDColorCloseToWhite
@@ -408,6 +418,7 @@ class MainActivity : MenuActivity(), View.OnClickListener {
         }
       }
     }
+    tabs.tabMode = TabLayout.MODE_AUTO
   }
 
   private fun setTabClickListener() {
@@ -521,7 +532,7 @@ class MainActivity : MenuActivity(), View.OnClickListener {
             pagerAdapter.notifyDataSetChanged()
             view_pager.offscreenPageLimit = libraries.size - 1
             menuLayoutId = parseMenuId(pagerAdapter.list[view_pager.currentItem].tag)
-            currentFragment = pagerAdapter.getFragment(view_pager.currentItem) as LibraryFragment<*, *>
+            currentFragment = pagerAdapter.getFragment(view_pager.currentItem)
             invalidateOptionsMenu()
             //如果只有一个Library,隐藏标签栏
             if (libraries.size == 1) {
@@ -543,7 +554,7 @@ class MainActivity : MenuActivity(), View.OnClickListener {
       Crop.REQUEST_CROP, Crop.REQUEST_PICK -> {
         val intent = intent
 
-        val customCover = intent.getParcelableExtra<CustomCover>(EXTRA_COVER) ?: return
+        val customCover = intent.getSerializableExtra(EXTRA_COVER) as CustomCover? ?: return
         val errorTxt = getString(
             when (customCover.type) {
               Constants.ALBUM -> R.string.set_album_cover_error

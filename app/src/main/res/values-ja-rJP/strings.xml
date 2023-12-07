@@ -7,6 +7,8 @@
     <string name="tab_artist">アーティスト</string>
     <string name="tab_playlist">プレイリスト</string>
     <string name="tab_folder">フォルダ</string>
+    <string name="tab_genre">流派</string>
+    <string name="tab_remote">リモート</string>
 
     <string name="drawer_song">ライブラリ</string>
     <string name="drawer_recently_add">最近の追加</string>
@@ -292,8 +294,12 @@
   <string name="display_title_desc">ファイル名 逆順</string>
   <string name="artist">アーティスト</string>
   <string name="artist_desc">アーティスト 逆順</string>
+  <string name="genre">流派</string>
+  <string name="genre_desc">流派 逆順</string>
   <string name="date_modify">変更日時</string>
   <string name="date_modify_desc">変更日時 逆順</string>
+  <string name="count">再生回数</string>
+  <string name="count_desc">再生回数 逆順</string>
   <string name="duration">長さ</string>
   <string name="year">年</string>
   <string name="number_of_album">アルバム数</string>
@@ -454,4 +460,16 @@
   <string name="support_developer">開発者のサポート</string>
   <string name="no_more_prompt">再プロンプト</string>
   <string name="go">行く</string>
+
+  <string name="webdav">WebDav</string>
+  <string name="dlna">DLNA</string>
+
+  <string name="alias">別名＃ベツメイ＃</string>
+  <string name="account">アカウント</string>
+  <string name="pwd">パスワード</string>
+  <string name="webdav_hint_server">サーバー</string>
+  <string name="webdav_hint_path">パス(オプション)</string>
+  <string name="can_t_be_empty">%s空にすることはできません</string>
+  <string name="connect">せつぞく</string>
+  <string name="edit">編集</string>
 </resources>

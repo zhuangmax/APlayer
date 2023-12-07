@@ -30,6 +30,8 @@ abstract class MenuActivity : ToolbarActivity() {
       TimerDialog.newInstance()
           .show(supportFragmentManager, TimerDialog::class.java.simpleName)
       return true
+    } else if (item.itemId == R.id.action_close) {
+      finish()
     } else {
       var sortOrder = ""
       when (item.itemId) {
@@ -63,6 +65,14 @@ abstract class MenuActivity : ToolbarActivity() {
         }
         R.id.action_sort_order_artist_desc -> {
           sortOrder = SortOrder.ARTIST_Z_A
+          item.isChecked = true
+        }
+        R.id.action_sort_order_genre -> {
+          sortOrder = SortOrder.GENRE_A_Z
+          item.isChecked = true
+        }
+        R.id.action_sort_order_genre_desc -> {
+          sortOrder = SortOrder.GENRE_Z_A
           item.isChecked = true
         }
         R.id.action_sort_order_date -> {
@@ -101,6 +111,14 @@ abstract class MenuActivity : ToolbarActivity() {
           sortOrder = SortOrder.TRACK_NUMBER
           item.isChecked = true
         }
+        R.id.action_sort_order_play_count -> {
+          sortOrder = SortOrder.PLAY_COUNT
+          item.isChecked = true
+        }
+        R.id.action_sort_order_play_count_desc -> {
+          sortOrder = SortOrder.PLAY_COUNT_DESC
+          item.isChecked = true
+        }
       }
       if (!TextUtils.isEmpty(sortOrder))
         saveSortOrder(sortOrder)
@@ -127,6 +145,8 @@ abstract class MenuActivity : ToolbarActivity() {
       SortOrder.ALBUM_Z_A -> subMenu.findItem(R.id.action_sort_order_album_desc).isChecked = true
       SortOrder.ARTIST_A_Z -> subMenu.findItem(R.id.action_sort_order_artist).isChecked = true
       SortOrder.ARTIST_Z_A -> subMenu.findItem(R.id.action_sort_order_artist_desc).isChecked = true
+      SortOrder.GENRE_A_Z -> subMenu.findItem(R.id.action_sort_order_genre_desc).isChecked = true
+      SortOrder.GENRE_Z_A -> subMenu.findItem(R.id.action_sort_order_genre_desc).isChecked = true
       SortOrder.DATE -> subMenu.findItem(R.id.action_sort_order_date).isChecked = true
       SortOrder.DATE_DESC -> subMenu.findItem(R.id.action_sort_order_date_desc).isChecked = true
       //            case SortOrder.DURATION:
@@ -140,6 +160,8 @@ abstract class MenuActivity : ToolbarActivity() {
       SortOrder.PLAYLIST_DATE -> subMenu.findItem(R.id.action_sort_order_playlist_date).isChecked = true
       SortOrder.TRACK_NUMBER -> subMenu.findItem(R.id.action_sort_order_track_number).isChecked = true
       SortOrder.PLAYLIST_SONG_CUSTOM -> subMenu.findItem(R.id.action_sort_order_custom).isChecked = true
+      SortOrder.PLAY_COUNT -> subMenu.findItem(R.id.action_sort_order_play_count).isChecked = true
+      SortOrder.PLAY_COUNT_DESC -> subMenu.findItem(R.id.action_sort_order_play_count_desc).isChecked = true
     }
   }
 

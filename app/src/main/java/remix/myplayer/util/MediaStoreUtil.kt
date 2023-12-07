@@ -12,6 +12,7 @@ import android.os.Build
 import android.provider.MediaStore
 import android.provider.MediaStore.Audio
 import android.provider.MediaStore.Audio.AudioColumns
+import android.provider.MediaStore.Audio.Genres
 import android.provider.Settings
 import androidx.annotation.WorkerThread
 import remix.myplayer.App
@@ -19,6 +20,7 @@ import remix.myplayer.R
 import remix.myplayer.bean.mp3.Album
 import remix.myplayer.bean.mp3.Artist
 import remix.myplayer.bean.mp3.Folder
+import remix.myplayer.bean.mp3.Genre
 import remix.myplayer.bean.mp3.Song
 import remix.myplayer.bean.mp3.Song.Companion.EMPTY_SONG
 import remix.myplayer.db.room.DatabaseRepository.Companion.getInstance
@@ -51,8 +53,8 @@ object MediaStoreUtil {
 
   //扫描文件默认大小设置
   var SCAN_SIZE = 0
-  private val BASE_PROJECTION: Array<String> = {
-    val projection = ArrayList<String>(
+  private val BASE_PROJECTION: Array<String> = run {
+    val projection = ArrayList(
       listOf(
         AudioColumns._ID,
         AudioColumns.TITLE,
@@ -76,7 +78,7 @@ object MediaStoreUtil {
       projection.add(AudioColumns.GENRE)
     }
     projection.toTypedArray()
-  }()
+  }
 
   @JvmStatic
   fun getAllArtist(): List<Artist> {
@@ -241,6 +243,46 @@ object MediaStoreUtil {
     return folders
   }
 
+  fun getAllGenres(): List<Genre> {
+    if (!PermissionUtil.hasNecessaryPermission()) {
+      return Collections.emptyList()
+    }
+
+    val genres: MutableList<Genre> = ArrayList()
+    context.contentResolver.query(
+      Genres.EXTERNAL_CONTENT_URI,
+      arrayOf(Genres._ID, Genres.NAME),
+      null,
+      null,
+      SPUtil.getValue(context, SETTING_KEY.NAME, SETTING_KEY.GENRE_SORT_ORDER, SortOrder.GENRE_A_Z)
+    )?.use { cursor ->
+      while (cursor.moveToNext()) {
+        val genreId = cursor.getLong(0)
+        if (genreId > 0) {
+          val songs = getSongsByGenreId(genreId)
+          genres.add(Genre(genreId, cursor.getString(1), songs.size))
+        }
+      }
+    }
+    return genres
+  }
+
+  fun getSongsByGenreId(genreId: Long, sortOrder: String? = null): List<Song> {
+    val songs = ArrayList<Song>()
+    context.contentResolver.query(
+      Genres.Members.getContentUri("external", genreId),
+      BASE_PROJECTION,
+      null,
+      null,
+      sortOrder
+    )?.use { songCursor ->
+      while (songCursor.moveToNext()) {
+        songs.add(getSongInfo(songCursor))
+      }
+    }
+    return songs
+  }
+
   /**
    * 根据歌手或者专辑id获取所有歌曲
    *
@@ -282,7 +324,7 @@ object MediaStoreUtil {
     if (cursor == null || cursor.columnCount <= 0) {
       return EMPTY_SONG
     }
-    return Song(
+    return Song.Local(
       id = cursor.getLong(cursor.getColumnIndex(AudioColumns._ID)),
       displayName = Util.processInfo(
         cursor.getString(cursor.getColumnIndex(AudioColumns.DISPLAY_NAME)),

@@ -3,6 +3,7 @@ package remix.myplayer.ui.activity.base
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.Dialog
 import android.content.Context
 import android.content.Intent
 import android.os.Build
@@ -10,6 +11,8 @@ import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.tbruyelle.rxpermissions2.RxPermissions
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.MainScope
 import remix.myplayer.BuildConfig
 import remix.myplayer.R
 import remix.myplayer.bean.mp3.Song
@@ -28,7 +31,7 @@ import timber.log.Timber
  * Created by Remix on 2016/3/16.
  */
 @SuppressLint("Registered")
-open class BaseActivity : AppCompatActivity() {
+open class BaseActivity : AppCompatActivity(), CoroutineScope by MainScope() {
   private var isDestroyed = false
   protected var isForeground = false
 
@@ -38,6 +41,15 @@ open class BaseActivity : AppCompatActivity() {
   var audioTag: AudioTag? = null
 
   var toDeleteSongs: ArrayList<Song>? = null
+
+  private val loadingDialog by lazy {
+    Theme.getBaseDialog(this)
+      .title(R.string.loading)
+      .content(R.string.please_wait)
+      .canceledOnTouchOutside(false)
+      .progress(true, 0)
+      .progressIndeterminateStyle(false).build()
+  }
 
   /**
    * 设置主题
@@ -156,6 +168,7 @@ open class BaseActivity : AppCompatActivity() {
         } else {
           ToastUtil.show(this, R.string.grant_write_permission_tip)
         }
+
       MediaStoreUtil.REQUEST_DELETE_PERMISSION ->
         if (resultCode == Activity.RESULT_OK) {
           toDeleteSongs?.let {
@@ -173,6 +186,20 @@ open class BaseActivity : AppCompatActivity() {
 
   override fun attachBaseContext(newBase: Context) {
     super.attachBaseContext(setLocal(newBase))
+  }
+
+  protected fun showLoading(): Dialog {
+    if (loadingDialog.isShowing) {
+      return loadingDialog
+    }
+    loadingDialog.show()
+    return loadingDialog
+  }
+
+  protected fun dismissLoading() {
+    if (loadingDialog.isShowing) {
+      loadingDialog.dismiss()
+    }
   }
 
   companion object {

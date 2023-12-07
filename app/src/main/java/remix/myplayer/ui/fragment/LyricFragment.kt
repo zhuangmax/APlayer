@@ -109,7 +109,6 @@ class LyricFragment : BaseMusicFragment(), View.OnClickListener {
     val id = song?.id
 
     disposable?.dispose()
-    Timber.v("setSearching")
     lrcView.setText(getStringSafely(R.string.searching))
     disposable = lyricSearcher.setSong(song ?: return)
       .getLyricObservable(uri, clearCache)

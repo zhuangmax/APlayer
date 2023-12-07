@@ -6,12 +6,14 @@ import android.content.res.Configuration
 import android.os.Build
 import android.os.Looper
 import android.provider.MediaStore
+import com.thegrizzlylabs.sardineandroid.DavResource
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.launch
 import remix.myplayer.bean.mp3.Album
 import remix.myplayer.bean.mp3.Artist
 import remix.myplayer.bean.mp3.Folder
+import remix.myplayer.bean.mp3.Genre
 import remix.myplayer.util.MediaStoreUtil
 import timber.log.Timber
 import java.io.File
@@ -33,6 +35,10 @@ fun Artist.getSongIds(): List<Long> {
 
 fun Folder.getSongIds(): List<Long> {
   return MediaStoreUtil.getSongsByParentPath(path).map { it.id }
+}
+
+fun Genre.getSongIds(): List<Long> {
+  return MediaStoreUtil.getSongsByGenreId(id).map { it.id }
 }
 
 fun Context.isPortraitOrientation(): Boolean {
@@ -151,7 +157,16 @@ private fun ZipOutputStream.createEmptyFolder(location: String) {
   closeEntry()
 }
 
-
 fun getPendingIntentFlag() =
   if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else PendingIntent.FLAG_UPDATE_CURRENT
 
+
+private val musicExt = setOf("wav","aif","au","mp3","ram","wma","mmf","amr","aac","flac")
+fun DavResource.isAudio(): Boolean {
+  if (isDirectory || path.isNullOrEmpty() || !contentType.startsWith("audio")) {
+    return false
+  }
+
+  val ext = path.substringAfterLast(".")
+  return musicExt.contains(ext.toLowerCase())
+}
